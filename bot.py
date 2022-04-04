@@ -324,10 +324,20 @@ class MyClient(discord.Client):
                 if("<@!" in msg and len(msg)==31 ):
                     
                     print(str(msg[len(prefix)+11:30]))
+                    try:
+                        something =int(str(msg[len(prefix)+11:30]))
+                    except:
+                        embedVar = discord.Embed(title="giverep requested by "+ message.author.name, description="", color=0x00ff00)
+                        embedVar.set_thumbnail(url=message.author.avatar_url)
+                        embedVar.add_field(name="**make sure you typed the command correctly**", value="`;)`", inline=False)
+                    
+                        await message.channel.send(embed=embedVar)
+                        return
 
                     r = open(msg[len(prefix)+11:30]+".txt", "r")
                     data = r.readlines()
                     r.close()
+                    
                 
                     k = open(str(message.author.id)+".txt", "r")
                     pata = k.readlines()
@@ -429,4 +439,4 @@ class MyClient(discord.Client):
 
 client = MyClient()
 
-client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.AbLNi-jt6XKhJdYaAZiXlXMhwuo')
+client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.9Ct41zHdOLFohmLw6TdA1vF1vOk')
