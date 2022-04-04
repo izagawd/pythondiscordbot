@@ -45,11 +45,16 @@ class MyClient(discord.Client):
         if(message.guild.id == 922901280245026876):
             if("$" in msg):
                 
-                
-                w = open(msg[len(prefix)+11:30]+".txt", "a")
+                try:
+                    w = open(msg[len(prefix)+11:30]+".txt", "a")
+                except:
+                    w = open(msg[len(prefix)+10:29]+".txt", "a")
                 
                 w.close()
-                r =  open(msg[len(prefix)+11:30]+".txt", "r")
+                try:
+                    r =  open(msg[len(prefix)+11:30]+".txt", "r")
+                except:
+                    r =  open(msg[len(prefix)+10:29]+".txt", "r")
                 data = r.readlines()
                 
                 r.close()
@@ -75,7 +80,11 @@ class MyClient(discord.Client):
 
     
                     
-                w = open(msg[len(prefix)+11:30]+".txt", "w+")
+                try:
+                    w = open(msg[len(prefix)+11:30]+".txt", "w+")
+                except:
+                    w = open(msg[len(prefix)+10:29]+".txt", "w+")
+                    
                 
                 w.writelines(data)
                 w.close()
@@ -144,13 +153,22 @@ class MyClient(discord.Client):
 
                 await message.channel.send(embed=embedVar)
             elif(msg.startswith(prefix+"profile")):
-                r =  open(str(msg[len(prefix)+11:30])+".txt", "r")
+                try:
+                    
+                    r =  open(str(msg[len(prefix)+11:30])+".txt", "r")
+                except:
+                    r =  open(str(msg[len(prefix)+10:29])+".txt", "r")
                 data = r.readlines()
                 r.close()
+                didu=0
                 try:
 
                     uzr = await client.fetch_user(int(msg[len(prefix)+11:30]))
+                    didu=1
                 except:
+                    uzr = await client.fetch_user(int(msg[len(prefix)+10:29]))
+                    didu = 2
+                if(didu==0):
                     embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
                     embedVar.set_thumbnail(url=message.author.avatar_url)
                     embedVar.add_field(name="**try putting space once between the command and the user or contact the bot creator**", value="`eg $profile @iza`", inline=False)
@@ -321,28 +339,27 @@ class MyClient(discord.Client):
 
                 await message.channel.send(embed=embedVar)
             elif(msg.startswith(prefix+"giverep")):
-                if("<@!" in msg and len(msg)==31 ):
+                if(len(msg)>=30 ):
                     
-                    print(str(msg[len(prefix)+11:30]))
+                   
                     try:
-                        something =int(str(msg[len(prefix)+11:30]))
-                    except:
-                        embedVar = discord.Embed(title="giverep requested by "+ message.author.name, description="", color=0x00ff00)
-                        embedVar.set_thumbnail(url=message.author.avatar_url)
-                        embedVar.add_field(name="**make sure you typed the command correctly**", value="`;)`", inline=False)
-                    
-                        await message.channel.send(embed=embedVar)
-                        return
+                        print(str(msg[len(prefix)+11:30]))
+                        
+                        r = open(msg[len(prefix)+11:30]+".txt", "r")
+                        a =str(msg[len(prefix)+11:30])
 
-                    r = open(msg[len(prefix)+11:30]+".txt", "r")
+                    except:
+                        r = open(msg[len(prefix)+10:29]+".txt", "r")
+                        a = str(msg[len(prefix)+10:29])
+                        
                     data = r.readlines()
                     r.close()
                     
-                
+                        
                     k = open(str(message.author.id)+".txt", "r")
                     pata = k.readlines()
                     k.close()
-                    if(str(msg[len(prefix)+11:30])==str(message.author.id)):
+                    if(a==str(message.author.id)):
                         
                                                                     
                         embedVar = discord.Embed(title="giverep requested by "+ message.author.name, description="", color=0x00ff00)
@@ -368,7 +385,11 @@ class MyClient(discord.Client):
                     
                     
 
-                    f = open(msg[len(prefix)+11:30]+".txt", "w+")
+                    
+                    try:
+                        f = open(msg[len(prefix)+11:30]+".txt", "w+")
+                    except:
+                        f = open(msg[len(prefix)+10:29]+".txt", "w+")
                     f.writelines(data)
                     f.close()
                     f = open(str(message.author.id)+".txt", "w+")
@@ -439,4 +460,4 @@ class MyClient(discord.Client):
 
 client = MyClient()
 
-client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.9Ct41zHdOLFohmLw6TdA1vF1vOk')
+client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.ykVNnAFI9x7bAZ22FMF7V_FNGMo')
