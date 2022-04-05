@@ -33,27 +33,42 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         now = datetime.datetime.now()
-        
-        
-        
-
         iza = client.get_user(216230858783326209)
         
         
 
         msg = str.lower(message.content)
         if(message.guild.id == 922901280245026876):
-            if("$" in msg):
+            
+            if("$giverep" in msg or "$profile" in msg):
+                if(len(msg)>20):
+                    try:
+                        m = int(msg[len(prefix)+11:30])
+                    except:
+                        try:
+                            m = int(msg[len(prefix)+10:29])
+                        except:
+                            
+                            embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                            embedVar.set_thumbnail(url=message.author.avatar_url)
+                            embedVar.add_field(name="**try putting space once between the command and the user or contact the bot creator**", value="`eg $profile @iza`", inline=False)
+                            await message.channel.send(embed=embedVar)
+                            return
                 
                 try:
+                    
                     w = open(msg[len(prefix)+11:30]+".txt", "a")
+                    
                 except:
+                    
                     w = open(msg[len(prefix)+10:29]+".txt", "a")
                 
                 w.close()
                 try:
+                    
                     r =  open(msg[len(prefix)+11:30]+".txt", "r")
                 except:
+                    
                     r =  open(msg[len(prefix)+10:29]+".txt", "r")
                 data = r.readlines()
                 
@@ -72,7 +87,10 @@ class MyClient(discord.Client):
                     else:
                         data.append("Unknown\n")
                 cake =int(now.strftime('%d'))
-                bake =str(int(data[2][0:2]) +(cake-int(data[11][0:2])))
+                print(data[2])
+                bake =str(int(data[2]) +(cake-int(data[11])))
+
+                
                 data[2] = bake+"\n"
                 data[11] = str(int(now.strftime('%d')))+"\n"
                 
@@ -114,7 +132,7 @@ class MyClient(discord.Client):
                     else:
                         data.append("Unknown\n")
                 cake =int(now.strftime('%d'))
-                bake =str(int(data[2][0:2]) +(cake-int(data[11][0:2])))
+                bake =str(int(data[2]) +(cake-int(data[11])))
                 data[2] = bake+"\n"
                 data[11] = str(int(now.strftime('%d')))+"\n"
                 
@@ -154,8 +172,10 @@ class MyClient(discord.Client):
                 await message.channel.send(embed=embedVar)
             elif(msg.startswith(prefix+"profile")):
                 try:
+                    print(msg[len(prefix)+11:30])
                     
                     r =  open(str(msg[len(prefix)+11:30])+".txt", "r")
+                    m = int(msg[len(prefix)+11:30])
                 except:
                     r =  open(str(msg[len(prefix)+10:29])+".txt", "r")
                 data = r.readlines()
@@ -343,7 +363,7 @@ class MyClient(discord.Client):
                     
                    
                     try:
-                        print(str(msg[len(prefix)+11:30]))
+                        print(int(msg[len(prefix)+11:30]))
                         
                         r = open(msg[len(prefix)+11:30]+".txt", "r")
                         a =str(msg[len(prefix)+11:30])
@@ -351,6 +371,7 @@ class MyClient(discord.Client):
                     except:
                         r = open(msg[len(prefix)+10:29]+".txt", "r")
                         a = str(msg[len(prefix)+10:29])
+                        print(a+"here")
                         
                     data = r.readlines()
                     r.close()
@@ -369,6 +390,15 @@ class MyClient(discord.Client):
                         await message.channel.send(embed=embedVar)     
                 
                     elif(int(pata[2])>0):
+                        print(pata[2])
+                        print(data[0])
+                        try:
+                            m =int(pata[2])
+                            m =int(data[0])
+                        except:
+                            print("something went wrong")
+                            return
+                        
                         data[0] = str(int(data[0])+1)+"\n"
                         pata[2] =  str(int(pata[2])-1)+"\n"
                         embedVar = discord.Embed(title="giverep requested by "+ message.author.name, description="", color=0x00ff00)
@@ -387,6 +417,7 @@ class MyClient(discord.Client):
 
                     
                     try:
+                        print(int(msg[len(prefix)+11:30]))
                         f = open(msg[len(prefix)+11:30]+".txt", "w+")
                     except:
                         f = open(msg[len(prefix)+10:29]+".txt", "w+")
@@ -460,4 +491,4 @@ class MyClient(discord.Client):
 
 client = MyClient()
 
-client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.ykVNnAFI9x7bAZ22FMF7V_FNGMo')
+client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.5aS406G12jhFm3O5uWX6s4NeXmI')
