@@ -4,7 +4,8 @@ import time
 import random
 import os
 import datetime
-
+import random
+import asyncio
 #importing...
 from discord.ext import commands
 intents = discord.Intents.default()
@@ -23,12 +24,21 @@ region = 7
 platform = 8
 genshinstatus = 9
 server = 10
+def timetillnextday(dt=None):
+    # type: (datetime.datetime) -> datetime.timedelta
+    """
+    Get timedelta until end of day on the datetime passed, or current time.
+    """
+    if dt is None:
+        dt = datetime.datetime.now()
+    tomorrow = dt + datetime.timedelta(days=1)
+    return ((str(datetime.datetime.combine(tomorrow, datetime.time.min) - dt)[::-1])[7:])[::-1]
 class MyClient(discord.Client):
 
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
         #to see if the bot is functional
-        await client.change_presence(status=discord.Status.idle, activity=discord.Game(prefix+"help"))
+        await client.change_presence(status=discord.Status.online, activity=discord.Game(prefix+"help"))
     
 
     async def on_message(self, message):
@@ -38,9 +48,11 @@ class MyClient(discord.Client):
         
 
         msg = str.lower(message.content)
+        if(message.author.id == 340054610989416460):
+            return
         if(message.guild.id == 922901280245026876):
             
-            if("$giverep" in msg or "$profile" in msg):
+            if((msg.startswith(prefix+"giverep") or msg.startswith(prefix+"profile")) and msg.startswith(prefix)):
                 if(len(msg)>20):
                     try:
                         m = int(msg[len(prefix)+11:30])
@@ -56,15 +68,18 @@ class MyClient(discord.Client):
                             return
                 
                 try:
+                    m = int(msg[len(prefix)+11:30])
                     
                     w = open(msg[len(prefix)+11:30]+".txt", "a")
                     
                 except:
                     
+                    
                     w = open(msg[len(prefix)+10:29]+".txt", "a")
                 
                 w.close()
                 try:
+                    m = int(msg[len(prefix)+11:30])
                     
                     r =  open(msg[len(prefix)+11:30]+".txt", "r")
                 except:
@@ -99,6 +114,7 @@ class MyClient(discord.Client):
     
                     
                 try:
+                    m = int(msg[len(prefix)+11:30])
                     w = open(msg[len(prefix)+11:30]+".txt", "w+")
                 except:
                     w = open(msg[len(prefix)+10:29]+".txt", "w+")
@@ -166,13 +182,15 @@ class MyClient(discord.Client):
                 embedVar.add_field(name="Favorite Region", value="`"+data[7]+"`", inline=False)
                 embedVar.add_field(name="Platform(s)", value="`"+data[8]+"`", inline=False)
                 embedVar.add_field(name="Genshin UID", value="`"+data[9]+"`", inline=False)
+                
                 embedVar.add_field(name="Genshin Server(s)", value="`"+data[10]+"`", inline=False)
+                embedVar.add_field(name="Next reputation point to give in", value="`"+timetillnextday()+"`", inline=False)
                 
 
                 await message.channel.send(embed=embedVar)
             elif(msg.startswith(prefix+"profile")):
                 try:
-                    print(msg[len(prefix)+11:30])
+                    print(int(msg[len(prefix)+11:30]))
                     
                     r =  open(str(msg[len(prefix)+11:30])+".txt", "r")
                     m = int(msg[len(prefix)+11:30])
@@ -210,6 +228,7 @@ class MyClient(discord.Client):
                 embedVar.add_field(name="Platform(s)", value="`"+data[8]+"`", inline=False)
                 embedVar.add_field(name="Genshin UID", value="`"+data[9]+"`", inline=False)
                 embedVar.add_field(name="Genshin Server(s)", value="`"+data[10]+"`", inline=False)
+                embedVar.add_field(name="Next reputation point to give in", value="`"+timetillnextday()+"`", inline=False)
                 await message.channel.send(embed=embedVar)
                 
 
@@ -403,7 +422,7 @@ class MyClient(discord.Client):
                         pata[2] =  str(int(pata[2])-1)+"\n"
                         embedVar = discord.Embed(title="giverep requested by "+ message.author.name, description="", color=0x00ff00)
                         embedVar.set_thumbnail(url=message.author.avatar_url)
-                        embedVar.add_field(name="**reputation point given successfully!**", value="`that's nice of you!`", inline=False)
+                        embedVar.add_field(name="**reputation point given successfully!**", value="`that's nice of you! They now have "+ data[0]+ "reps!`", inline=False)
                     
                         await message.channel.send(embed=embedVar)
                     else:
@@ -432,15 +451,30 @@ class MyClient(discord.Client):
                     embedVar.add_field(name="**You have to tag the person you want to give rep to with one space after the command**", value="`eg $giverep @iza`", inline=False)
                     
                     await message.channel.send(embed=embedVar)
+            elif(msg == prefix+"promote"):
+                r = open(str(message.author.id)+".txt", "r")
+                data = r.readlines()
+                r.close()
+                if(int(data[0])>=100):
+                    await message.author.add_roles(discord.utils.get(message.guild.roles, name="Acknowledged human"))
+                    embedVar = discord.Embed(title="promotion requested by "+ message.author.name, description="", color=0x00ff00)
+                    embedVar.set_thumbnail(url=message.author.avatar_url)
+                    embedVar.add_field(name="**congrats!**", value="**You are now an acknowledged human!**", inline=False)
+                    await message.channel.send(embed=embedVar)
+                elif(discord.utils.get(message.guild.roles, name="Acknowledged human")in message.author.roles):
+                    embedVar = discord.Embed(title="promotion requested by "+ message.author.name, description="", color=0x00ff00)
+                    embedVar.set_thumbnail(url=message.author.avatar_url)
+                    embedVar.add_field(name=":joy:", value="**You are already an acknowledged human!**", inline=False)
+                    await message.channel.send(embed=embedVar)
                     
                 
-                
-                
-                
-                
-                
-                
-                
+                else:
+                    embedVar = discord.Embed(title="promotion requested by "+ message.author.name, description="", color=0x00ff00)
+                    embedVar.set_thumbnail(url=message.author.avatar_url)
+                    embedVar.add_field(name="**hmm**", value="**You are " +str(100-int(data[0]))+" points away from being an acknowledged human!**", inline=False)
+                    await message.channel.send(embed=embedVar)
+                    
+       
                 
         if (message.channel.id == 931242116473057322):
             chan = client.get_channel(922901280752554007)
@@ -453,7 +487,65 @@ class MyClient(discord.Client):
             await message.channel.send("1..")
             time.sleep(1)
             await message.channel.send("BOOM!")
+        
             #message.channel.send sends the message in the channel in which the command was inputed
+        elif (msg.startswith(prefix+"rps")):
+            args = msg[len(prefix)+4:]
+            m = ["rock", "paper", "scissors"]
+            m = random.choice(m)
+            
+            if(m==args):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ args+"**!", value="I guess it's a tie :person_shrugging:", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            elif(m == "rock" and args == "scissors"):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ m +"**!", value="I smashed your **scissors** to pieces with my **rock** >:)", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            elif(m=="rock" and args == "paper"):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ m +"**!", value="You covered my **rock** with your **paper** and trapped it? interesting >:)", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            elif(m=="scissors" and args == "paper"):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ m +"**!", value="I cut your **paper** into tiny pieces with my **scissors** >:)", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            elif(m=="scissors" and args == "rock"):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ m +"**!", value="you smashed my **scissors** with your **rock**? Didn't expect u to choose that!", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            elif(m=="paper" and args == "rock"):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ m +"**!", value="I covered your **rock** with my **paper** now it's useless!", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            elif(m=="paper" and args == "scissors"):
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**I chose "+ m +"**!", value="How dare you cut my **paper** into tiny pieces with your **scissors**! >:(", inline=False)
+
+                await message.channel.send(embed=embedVar)
+            else:
+                embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                embedVar.set_thumbnail(url=message.author.avatar_url)
+                embedVar.add_field(name="**Hmm**!", value="I only understand **rock**, **paper**, and **scissors**. Eg $rps paper", inline=False)
+
+                await message.channel.send(embed=embedVar)
+                
+                
+                
+ 
         elif (msg.startswith(prefix+"iza")):
 
             embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
@@ -469,8 +561,8 @@ class MyClient(discord.Client):
             
             embedVar = discord.Embed(title=" Commands requested by "+ message.author.name, description="", color=0x00ff00)
             embedVar.set_thumbnail(url=message.author.avatar_url)
-            embedVar.add_field(name="**Fun**", value="`selfdestruct` `roll`", inline=False)
-            embedVar.add_field(name="**Profile interactions**", value="`profile` `giverep` `setbio` `setregion` `setmain` `setweapon` `setplatform` `setuid` `setelement` `setadventurerank` `setserver`", inline = False)
+            embedVar.add_field(name="**Fun**", value="`selfdestruct` `roll` `fight` `rps(rock paper scissors)`", inline=False)
+            embedVar.add_field(name="**Profile interactions**", value="`profile` `promote` `giverep` `setbio` `setregion` `setmain` `setweapon` `setplatform` `setuid` `setelement` `setadventurerank` `setserver`", inline = False)
             await message.channel.send(embed=embedVar)
 
         elif (msg == prefix+"roll"):
@@ -480,6 +572,147 @@ class MyClient(discord.Client):
             
 
             await message.channel.send(embed=embedVar)
+        elif(msg.startswith(prefix+"fight")):
+            try:
+                m = int(msg[len(prefix)+9:28])
+            except:
+                try:
+                    m = int(msg[len(prefix)+8:27])
+                except:
+                    embedVar = discord.Embed(title="requested by "+ message.author.name, description="", color=0x00ff00)
+                    embedVar.set_thumbnail(url=message.author.avatar_url)
+                    embedVar.add_field(name="Hmm", value="**make sure you leave a space between the command and the mention e.g $fight @iza**", inline=False)
+
+                    await message.channel.send(embed=embedVar)
+                    
+            hp1 =100
+            hp2 = 100
+            opponent = await client.fetch_user(m)
+            you = message.author
+            if(opponent == you):
+                embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                embedVar.add_field(name=f"OUCH!", value=f"**You killed yourself :joy:**", inline=False)
+           
+                await message.channel.send(embed=embedVar)
+                return
+                
+            embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+            embedVar.add_field(name=f"attack or heal? {opponent.name}'s turn", value=f"**{you.name}'s health: `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+           
+            await message.channel.send(embed=embedVar)
+            try:
+                m = await client.wait_for('message', check=lambda message: message.author.id == opponent.id and (message.content == "attack" or message.content == "heal" or message.content == "Attack" or message.content == "Heal"), timeout = 60)
+                m = str.lower(m.content)
+            except asyncio.TimeoutError:
+                embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                embedVar.add_field(name=f"hmm", value=f"**Battle terminated. opponent took too long**", inline=False)
+           
+                await message.channel.send(embed=embedVar)
+                return;
+            while(True):
+
+
+                if(m == "attack"):
+                    cake = random.randint(5,30)
+                    hp1 = hp1 - cake
+
+                    if(not hp1<=0):
+                        embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                        embedVar.add_field(name=f"OUCH!", value=f"**{opponent.name} dealt `{cake}` damage!!!**", inline=False)
+                        embedVar.add_field(name=f"attack or heal? {you.name}'s turn", value=f"**{you.name}'s health: `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+                        await message.channel.send(embed=embedVar)
+                    else:
+                        embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                        embedVar.add_field(name=f"OUCH!", value=f"**{opponent.name} dealt `{cake}` damage!!!**", inline=False)
+                        embedVar.add_field(name=f"{opponent.name} won the battle!", value=f"**{you.name}'s health: `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+                        await message.channel.send(embed=embedVar)
+                        return
+                    
+                    
+           
+                    
+                elif(m=="heal"):
+                    
+                    cake = random.randint(5,20)
+                    hp2 = hp2 + cake
+                    if(hp2>100):
+                        hp2 = 100
+                    embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                    embedVar.add_field(name=f"Interesting!", value=f"**{opponent.name} healed `{cake}` health!**", inline=False)
+                    embedVar.add_field(name=f"attack or heal? {you.name}'s turn", value=f"**{you.name}'s health `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+                    await message.channel.send(embed=embedVar)
+                try:
+                    m = await client.wait_for('message', check=lambda message: message.author.id == you.id and (message.content == "attack" or message.content == "heal" or message.content == "Attack" or message.content == "Heal"), timeout = 60)
+                    m = str.lower(m.content)
+                except asyncio.TimeoutError:
+                    embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                    embedVar.add_field(name=f"hmm", value=f"**Battle terminated. opponent took too long**", inline=False)
+           
+                    await message.channel.send(embed=embedVar)
+                    return
+                if(m == "attack"):
+                    cake = random.randint(5,30)
+                    hp2 = hp2 - cake
+                    if(not hp2<=0):
+                        embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                        embedVar.add_field(name=f"OUCH!", value=f"**{you.name} dealt `{cake}` damage!!!**", inline=False)
+                        embedVar.add_field(name=f"attack or heal? {opponent.name}'s turn", value=f"**{you.name}'s health: `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+                        await message.channel.send(embed=embedVar)
+                    else:
+                        embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                        embedVar.add_field(name=f"OUCH!", value=f"**{you.name} dealt `{cake}` damage!!!**", inline=False)
+                        embedVar.add_field(name=f"{you.name} won the battle!", value=f"**{you.name}'s health: `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+                        await message.channel.send(embed=embedVar)
+                        return
+                    
+           
+                    
+                elif(m=="heal"):
+                    cake = random.randint(5,20)
+                    hp1 = hp1 + cake
+                    if (hp1> 100):
+                        hp1 = 100
+                    embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                    embedVar.add_field(name=f"Interesting!", value=f"**{you.name} healed `{cake}` health!**", inline=False)
+                    embedVar.add_field(name=f"attack or heal? {opponent.name}'s turn", value=f"**{you.name}'s health `{hp1}` \n{opponent.name}'s health: `{hp2}` **", inline=False)
+                    await message.channel.send(embed=embedVar)
+                try:
+                    m = await client.wait_for('message', check=lambda message: message.author.id == opponent.id and (message.content == "attack" or message.content == "heal" or message.content == "Attack" or message.content == "Heal"), timeout = 60)
+                    m = str.lower(m.content)
+                except asyncio.TimeoutError:
+                    embedVar = discord.Embed(title="BATTLE!!!", description="", color=0x00ff00)
+            
+                    embedVar.add_field(name=f"hmm", value=f"**Battle terminated. opponent took too long**", inline=False)
+           
+                    await message.channel.send(embed=embedVar)
+                    return
+                
+                
+                
+                    
+                    
+                    
+                
+                    
+            
+
+                
+                    
+                
+            
+                
+                
+            
         
 
 
@@ -491,4 +724,4 @@ class MyClient(discord.Client):
 
 client = MyClient()
 
-client.run('MzQwMDU0NjEwOTg5NDE2NDYw.WXmqiQ.5aS406G12jhFm3O5uWX6s4NeXmI')
+client.run("Your bot's token")
